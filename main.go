@@ -8,8 +8,6 @@ import (
 func main() {
 	r := gin.New()
 
-	r.LoadHTMLGlob("templates/*")
-
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 

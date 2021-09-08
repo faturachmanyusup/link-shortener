@@ -6,7 +6,7 @@ import (
 )
 
 func Link(ctx *gin.RouterGroup) {
-	ctx.GET("/link", linkController.ShowForm)
+	ctx.GET("/", linkController.ShowForm)
 	ctx.GET("/:link", linkController.Find)
 	ctx.POST("/link", linkController.Create)
 }
