@@ -10,7 +10,6 @@ import (
 )
 
 func Connect() (*mongo.Database, error) {
-	Setenv()
 	mongoURL := os.Getenv("MONGOURL")
 	clientOptions := options.Client().ApplyURI(mongoURL)
 
