@@ -1,6 +1,8 @@
 package linkController
 
 import (
+	"errors"
+	"html/template"
 	"strings"
 	"time"
 
@@ -11,11 +13,22 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type Form struct {
+	Link string
+}
+
+type HTMLdata struct {
+	link.Link
+	error
+}
+
+var tmp, _ = template.ParseGlob("templates/*")
+
 func Find(ctx *gin.Context) {
 	linkForm := ctx.Param("link")
 	filter := link.Link{ShortLink: linkForm}
 
-	link, err := link.FindOne(ctx, filter)
+	cur, err := link.FindOne(ctx, filter)
 
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
@@ -31,18 +44,21 @@ func Find(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(302, link.OriginalLink)
+	ctx.Redirect(302, cur.OriginalLink)
 }
 
 func Create(ctx *gin.Context) {
 	linkForm := ctx.PostForm("link")
 	if linkForm == "" {
-		ctx.JSON(401, gin.H{
-			"message": "link cannot be null",
-		})
+		handleView(ctx, link.Link{}, errors.New("link cannot be empty"))
 		return
 	}
+
 	shortLink := random.Link(6)
+
+	if !strings.Contains(linkForm, "https://") && !strings.Contains(linkForm, "http://") {
+		linkForm = "http://" + linkForm
+	}
 
 	data := link.Link{
 		Id:           primitive.NewObjectID(),
@@ -51,22 +67,38 @@ func Create(ctx *gin.Context) {
 		CreatedAt:    time.Now(),
 	}
 
-	link, err := link.Create(ctx, data)
+	cur, err := link.Create(ctx, data)
 	if err != nil {
 		message := err.Error()
 
 		if strings.Contains(message, "duplicate") {
 			Create(ctx)
 		} else {
-			ctx.JSON(500, gin.H{
-				"message": "something went wrong",
-			})
+			handleView(ctx, link.Link{}, errors.New("something went wrong"))
 		}
 
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"link": link,
-	})
+	cur.ShortLink = "https://fierce-stream-80745.herokuapp.com/" + shortLink
+
+	handleView(ctx, cur, nil)
+}
+
+func ShowForm(ctx *gin.Context) {
+	handleView(ctx, link.Link{}, nil)
+}
+
+func handleView(ctx *gin.Context, data link.Link, err error) {
+	var HTMLdata = struct {
+		Link  link.Link
+		Error error
+		Test  string
+	}{
+		Link:  data,
+		Error: err,
+		Test:  "test",
+	}
+
+	tmp.ExecuteTemplate(ctx.Writer, "index.html", HTMLdata)
 }

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div
+      style="
+        width: 1366px;
+        height: 768px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      "
+    >
+      {{ template "header.html" . }}
+      {{if ne .Link.ShortLink ""}}
+        {{ template "info-card.html" . }}
+      {{else}}
+        {{ template "form-card.html" . }}
+      {{end}}
+      {{ template "footer.html" . }}
+    </div>
+  </body>
+</html>
+
+<!-- {{if ne .Error nil}}
+      <p>{{ .Test }}</p>
+    {{end}} -->
