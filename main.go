@@ -20,5 +20,5 @@ func main() {
 	link := r.Group("/")
 	route.Link(link)
 
-	r.Run(":80")
+	r.Run(port)
 }
