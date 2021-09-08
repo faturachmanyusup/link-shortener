@@ -1,12 +1,17 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"os"
 
 	"github.com/faturachmanyusup/link-shortener/route"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		panic("PORT IS EMPTY")
+	}
 	r := gin.New()
 
 	r.Use(gin.Logger())
