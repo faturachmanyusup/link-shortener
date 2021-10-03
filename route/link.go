@@ -8,5 +8,5 @@ import (
 func Link(ctx *gin.RouterGroup) {
 	ctx.GET("/", linkController.ShowForm)
 	ctx.GET("/:link", linkController.Find)
-	ctx.POST("/link", linkController.Create)
+	ctx.POST("/", linkController.Create)
 }
